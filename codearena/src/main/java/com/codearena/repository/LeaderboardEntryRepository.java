@@ -12,8 +12,7 @@ public interface LeaderboardEntryRepository extends JpaRepository<LeaderboardEnt
 
     boolean existsByUserId(Long userId);
 
-    // Drives the public leaderboard view: most problems solved first, ties broken by accuracy
     List<LeaderboardEntry> findAllByOrderByProblemsSolvedDescAccuracyDesc();
 
-    List<LeaderboardEntry> findAllByOrderByRankPositionAsc();
+    List<LeaderboardEntry> findAllByOrderByRankAsc();
 }

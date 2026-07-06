@@ -181,6 +181,17 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<configuration>
+					<url>jdbc:mysql://localhost:3306/codearena?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC</url>
+					<user>root</user>
+					<password>2407</password>
+					<cleanDisabled>false</cleanDisabled>
+				</configuration>
+			</plugin>
+
 		</plugins>
 
 	</build>

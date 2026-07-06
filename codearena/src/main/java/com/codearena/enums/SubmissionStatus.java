@@ -3,6 +3,7 @@ package com.codearena.enums;
 public enum SubmissionStatus {
     PENDING,
     RUNNING,
+    EXECUTED,
     ACCEPTED,
     WRONG_ANSWER,
     COMPILATION_ERROR,

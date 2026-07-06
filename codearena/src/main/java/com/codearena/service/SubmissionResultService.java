@@ -38,7 +38,10 @@ public class SubmissionResultService {
     @Transactional(readOnly = true)
     public List<SubmissionResultResponse> getBySubmission(Long submissionId, boolean includeOutput) {
         return submissionResultRepository.findBySubmissionId(submissionId).stream()
-                .map(r -> SubmissionResultResponse.fromEntity(r, includeOutput))
+                .map(r -> {
+                    boolean expose = includeOutput && !r.getTestCase().getIsHidden();
+                    return SubmissionResultResponse.fromEntity(r, expose);
+                })
                 .toList();
     }
 

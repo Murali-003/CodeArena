@@ -17,7 +17,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     List<Submission> findByUserIdAndProblemId(Long userId, Long problemId);
 
-    // Backbone of the rate-limit check: 5 submissions per problem per minute per user
     @Query("SELECT COUNT(s) FROM Submission s " +
            "WHERE s.user.id = :userId AND s.problem.id = :problemId " +
            "AND s.submittedAt >= :since")
@@ -26,4 +25,10 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
                                  @Param("since") LocalDateTime since);
 
     long countByUserIdAndStatus(Long userId, SubmissionStatus status);
+
+    @Query("SELECT COUNT(DISTINCT s.problem.id) FROM Submission s " +
+           "WHERE s.user.id = :userId AND s.status = :status")
+    long countDistinctProblemIdByUserIdAndStatus(@Param("userId") Long userId, @Param("status") SubmissionStatus status);
+
+    long countByUserId(Long userId);
 }

@@ -3,13 +3,7 @@ package com.codearena.entity;
 import com.codearena.enums.Language;
 import com.codearena.enums.SubmissionStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,26 +33,25 @@ public class Submission {
     private Problem problem;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private Language language;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 40)
     @Builder.Default
     private SubmissionStatus status = SubmissionStatus.PENDING;
 
-    @NotBlank(message = "Source code cannot be empty")
-    @Lob
-    @Column(name = "source_code", nullable = false, columnDefinition = "LONGTEXT")
-    private String sourceCode;
-
-    @Column(name = "submitted_at", updatable = false)
+    @Column(name = "submitted_at", nullable = false, updatable = false)
     private LocalDateTime submittedAt;
 
     @ToString.Exclude
     @Builder.Default
     @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SubmissionResult> submissionResults = new ArrayList<>();
+
+    @Lob
+    @Column(name = "source_code", nullable = false, columnDefinition = "LONGTEXT")
+    private String sourceCode;
 
     @PrePersist
     protected void onCreate() {

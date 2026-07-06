@@ -1,13 +1,7 @@
 package com.codearena.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -24,13 +18,11 @@ public class LeaderboardEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Unique + not-null enforces the 1:1 relationship at the DB level, mirroring your schema
     @ToString.Exclude
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @PositiveOrZero(message = "problems solved cannot be negative")
     @Column(name = "problems_solved", nullable = false)
     @Builder.Default
     private Integer problemsSolved = 0;
@@ -39,6 +31,14 @@ public class LeaderboardEntry {
     @Builder.Default
     private BigDecimal accuracy = BigDecimal.ZERO;
 
-    @Column(name = "rank_position")
-    private Integer rankPosition;
+    @Column(name = "rank_value")
+    private Integer rank;
+
+    public Integer getRankPosition() {
+        return rank;
+    }
+
+    public void setRankPosition(Integer rankPosition) {
+        this.rank = rankPosition;
+    }
 }
