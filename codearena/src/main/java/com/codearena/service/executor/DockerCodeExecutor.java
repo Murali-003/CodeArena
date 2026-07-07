@@ -47,7 +47,7 @@ public class DockerCodeExecutor implements CodeExecutor {
 
             String containerName = "codearena-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
             String image = switch (language) {
-                case JAVA   -> "eclipse-temurin:17-jdk";
+                case JAVA   -> "eclipse-temurin:25-jdk";
                 case PYTHON -> "python:3.11";
                 case CPP    -> "gcc:latest";
             };

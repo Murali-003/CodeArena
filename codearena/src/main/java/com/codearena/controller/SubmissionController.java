@@ -1,15 +1,23 @@
 package com.codearena.controller;
 
-import com.codearena.dto.submission.SubmissionRequest;
-import com.codearena.dto.submission.SubmissionResponse;
-import com.codearena.service.SubmissionService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.codearena.dto.submission.SubmissionRequest;
+import com.codearena.dto.submission.SubmissionResponse;
+import com.codearena.security.CustomUserDetails;
+import com.codearena.service.SubmissionService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/submissions")
@@ -18,14 +26,14 @@ public class SubmissionController {
 
     private final SubmissionService submissionService;
 
-    // TEMPORARY: userId comes from a request param for now since JWT isn't wired up yet.
-    // Once your teammate adds the security filter, replace this with the authenticated
-    // principal's id (Authentication -> CustomUserDetails -> getId()) and drop the param.
     @PostMapping
-    public ResponseEntity<SubmissionResponse> submit(@RequestParam Long userId,
-                                                       @Valid @RequestBody SubmissionRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(submissionService.submit(userId, request));
+    public ResponseEntity<SubmissionResponse> submit(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @Valid @RequestBody SubmissionRequest request) {
+
+        return ResponseEntity.ok(
+                submissionService.submit(user.getId(), request)
+        );
     }
 
     @GetMapping("/{id}")
@@ -34,8 +42,12 @@ public class SubmissionController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<SubmissionResponse>> getUserSubmissions(@PathVariable Long userId,
-                                                                        Pageable pageable) {
-        return ResponseEntity.ok(submissionService.getUserSubmissions(userId, pageable));
+    public ResponseEntity<Page<SubmissionResponse>> getUserSubmissions(
+            @AuthenticationPrincipal CustomUserDetails user,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(
+                submissionService.getUserSubmissions(user.getId(), pageable)
+        );
     }
 }
