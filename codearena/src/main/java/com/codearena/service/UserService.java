@@ -1,5 +1,11 @@
 package com.codearena.service;
 
+import java.util.List;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.codearena.dto.user.UserRequest;
 import com.codearena.dto.user.UserResponse;
 import com.codearena.entity.User;
@@ -7,12 +13,8 @@ import com.codearena.enums.Role;
 import com.codearena.exception.DuplicateResourceException;
 import com.codearena.exception.ResourceNotFoundException;
 import com.codearena.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     // No Spring bean needed for this — just a plain instance, since the security
     // starter (and its auto-locking of every endpoint) has been removed entirely.
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+private final PasswordEncoder passwordEncoder;
 
     public UserResponse create(UserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {

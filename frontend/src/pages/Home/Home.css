@@ -1,0 +1,44 @@
+.home-container{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    background:#0f172a;
+    color:white;
+    padding:20px;
+}
+
+.home-container h1{
+    font-size:48px;
+    color:#2563eb;
+    margin-bottom:20px;
+}
+
+.home-container h2{
+    font-size:34px;
+    margin-bottom:20px;
+}
+
+.home-container p{
+    width:60%;
+    font-size:20px;
+    color:#cbd5e1;
+    line-height:1.6;
+    margin-bottom:30px;
+}
+
+.home-container button{
+    background:#2563eb;
+    color:white;
+    padding:15px 35px;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.home-container button:hover{
+    background:#1d4ed8;
+}
