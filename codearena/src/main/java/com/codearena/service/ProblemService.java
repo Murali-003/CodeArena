@@ -31,23 +31,33 @@ public class ProblemService {
                 .difficulty(request.getDifficulty())
                 .tags(request.getTags())
                 .build();
-        return ProblemResponse.fromEntity(problemRepository.save(problem));
+        return ProblemResponse.fromEntity(problemRepository.save(problem), true);
     }
 
     @Transactional(readOnly = true)
     public ProblemResponse getById(Long id) {
-        return ProblemResponse.fromEntity(findEntityOrThrow(id));
+        // This is called by both Admin and User. Let's make it includeHidden=false to be safe, 
+        // since Admin can just hit the /api/problems (getAll) which returns everything.
+        // Wait, AdminTab currently edits using the data from getAll(). Let's pass false here.
+        return ProblemResponse.fromEntity(findEntityOrThrow(id), false);
+    }
+    
+    @Transactional(readOnly = true)
+    public ProblemResponse getByIdAdmin(Long id) {
+        return ProblemResponse.fromEntity(findEntityOrThrow(id), true);
     }
 
     @Transactional(readOnly = true)
     public Page<ProblemResponse> getByDifficulty(Difficulty difficulty, Pageable pageable) {
+        // Public list
         return problemRepository.findByDifficulty(difficulty, pageable)
-                .map(ProblemResponse::fromEntity);
+                .map(p -> ProblemResponse.fromEntity(p, false));
     }
 
     @Transactional(readOnly = true)
     public Page<ProblemResponse> getAll(Pageable pageable) {
-        return problemRepository.findAll(pageable).map(ProblemResponse::fromEntity);
+        // Used by AdminTab.tsx
+        return problemRepository.findAll(pageable).map(p -> ProblemResponse.fromEntity(p, true));
     }
 
     public ProblemResponse update(Long id, ProblemRequest request) {
@@ -64,7 +74,7 @@ public class ProblemService {
         problem.setDescriptionMd(request.getDescriptionMd());
         problem.setDifficulty(request.getDifficulty());
         problem.setTags(request.getTags());
-        return ProblemResponse.fromEntity(problem);
+        return ProblemResponse.fromEntity(problem, true);
     }
 
     public void delete(Long id) {

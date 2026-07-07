@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,8 +20,7 @@ public class ProblemController {
 
     private final ProblemService problemService;
 
-    // TODO: re-add @PreAuthorize("hasRole('ADMIN')") once security is wired back in.
-    // Anyone can hit this right now — fine for local CRUD testing, not for anything shared.
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProblemResponse> create(@Valid @RequestBody ProblemRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(problemService.create(request));
@@ -41,17 +41,17 @@ public class ProblemController {
         return ResponseEntity.ok(result);
     }
 
-    // TODO: re-add @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ProblemResponse> update(@PathVariable Long id,
                                                    @Valid @RequestBody ProblemRequest request) {
         return ResponseEntity.ok(problemService.update(id, request));
     }
 
-    // TODO: re-add @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         problemService.delete(id);
         return ResponseEntity.noContent().build();
     }
-}
+}

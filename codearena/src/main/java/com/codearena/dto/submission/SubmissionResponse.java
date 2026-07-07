@@ -26,6 +26,7 @@ public class SubmissionResponse {
     private SubmissionStatus status;
     private LocalDateTime submittedAt;
     private List<SubmissionResultResponse> results;
+    private String sourceCode;
 
     public static SubmissionResponse fromEntity(Submission s, List<SubmissionResultResponse> results) {
         return SubmissionResponse.builder()
@@ -36,6 +37,7 @@ public class SubmissionResponse {
                 .status(s.getStatus())
                 .submittedAt(s.getSubmittedAt())
                 .results(results)
+                .sourceCode(s.getSourceCode())
                 .build();
     }
 }

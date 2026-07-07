@@ -1,0 +1,6 @@
+{
+  "name": "CodeArena",
+  "description": "A premium, production-quality coding platform and problem-solving web application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

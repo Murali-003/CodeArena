@@ -4,6 +4,7 @@ import com.codearena.enums.Difficulty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import jakarta.persistence.PrePersist;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,4 +48,11 @@ public class Problem {
     @Builder.Default
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Submission> submissions = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

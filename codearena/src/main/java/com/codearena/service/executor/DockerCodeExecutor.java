@@ -47,7 +47,7 @@ public class DockerCodeExecutor implements CodeExecutor {
 
             String containerName = "codearena-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
             String image = switch (language) {
-                case JAVA   -> "eclipse-temurin:25-jdk";
+                case JAVA   -> "eclipse-temurin:21-jdk";
                 case PYTHON -> "python:3.11";
                 case CPP    -> "gcc:latest";
             };
@@ -77,7 +77,7 @@ public class DockerCodeExecutor implements CodeExecutor {
             List<String> createCompileCmd = buildCreateCommand(
                     compileContainerName, isolationFlags, image, buildCompileCommand(language));
             Process createCompile = new ProcessBuilder(createCompileCmd).redirectErrorStream(false).start();
-            boolean createCompileFinished = createCompile.waitFor(10, TimeUnit.SECONDS);
+            boolean createCompileFinished = createCompile.waitFor(120, TimeUnit.SECONDS);
             if (!createCompileFinished || createCompile.exitValue() != 0) {
                 createCompile.destroyForcibly();
                 String err = readStream(createCompile.getErrorStream());
@@ -118,7 +118,7 @@ public class DockerCodeExecutor implements CodeExecutor {
             List<String> createRunCmd = buildCreateCommand(
                     runContainerName, isolationFlags, image, buildRunCommand(language));
             Process createRun = new ProcessBuilder(createRunCmd).redirectErrorStream(false).start();
-            boolean createRunFinished = createRun.waitFor(10, TimeUnit.SECONDS);
+            boolean createRunFinished = createRun.waitFor(120, TimeUnit.SECONDS);
             if (!createRunFinished || createRun.exitValue() != 0) {
                 createRun.destroyForcibly();
                 String err = readStream(createRun.getErrorStream());

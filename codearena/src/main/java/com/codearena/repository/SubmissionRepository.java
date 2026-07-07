@@ -31,4 +31,6 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     long countDistinctProblemIdByUserIdAndStatus(@Param("userId") Long userId, @Param("status") SubmissionStatus status);
 
     long countByUserId(Long userId);
+
+    List<Submission> findByUserIdOrderBySubmittedAtAsc(Long userId);
 }
