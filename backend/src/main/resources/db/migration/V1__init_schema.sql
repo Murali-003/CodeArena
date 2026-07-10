@@ -59,3 +59,4 @@ CREATE TABLE leaderboard_entries (
     rank_value INT NULL,
     CONSTRAINT fk_leaderboard_entries_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
