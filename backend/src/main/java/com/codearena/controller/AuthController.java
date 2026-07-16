@@ -17,12 +17,26 @@ import com.codearena.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+import com.codearena.entity.User;
+import com.codearena.security.CustomUserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+    
+    @GetMapping("/me")
+    public ResponseEntity<User> currentUser(
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    return ResponseEntity.ok(userDetails.getUser());
+    }
 
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(

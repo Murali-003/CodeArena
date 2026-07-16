@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AuthScreen from "./components/AuthScreen";
+import OAuth2Success from "./components/OAuth2Success";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
@@ -89,10 +90,23 @@ export default function App() {
     );
   }
 
-  // Not logged in -> Show Auth Screen
-  if (!activeUser) {
-    return <AuthScreen onLoginSuccess={handleLoginSuccess} />;
-  }
+// Google OAuth callback
+if (window.location.pathname === "/oauth2/success") {
+    return (
+        <OAuth2Success
+            onLoginSuccess={handleLoginSuccess}
+        />
+    );
+}
+
+// Not logged in
+if (!activeUser) {
+    return (
+        <AuthScreen
+            onLoginSuccess={handleLoginSuccess}
+        />
+    );
+}
 
   // Helper to render current tab content
   const renderTabContent = () => {
