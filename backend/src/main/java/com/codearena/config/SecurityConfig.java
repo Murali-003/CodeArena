@@ -1,7 +1,99 @@
+// package com.codearena.config;
+
+// import org.springframework.context.annotation.Bean;
+// import org.springframework.context.annotation.Configuration;
+// import org.springframework.security.authentication.AuthenticationManager;
+// import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+// import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+// import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+// import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+// import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+// import org.springframework.security.config.http.SessionCreationPolicy;
+// import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.security.web.SecurityFilterChain;
+// import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+// import com.codearena.oauth.OAuth2AuthenticationSuccessHandler;
+// import com.codearena.security.CustomUserDetailsService;
+// import com.codearena.security.JwtAuthenticationFilter;
+
+// import org.springframework.core.annotation.Order;
+// import jakarta.servlet.http.HttpServletResponse;
+
+// import lombok.RequiredArgsConstructor;
+
+// @Configuration
+// @EnableWebSecurity
+// @EnableMethodSecurity
+// @RequiredArgsConstructor
+// public class SecurityConfig {
+
+//     private final CustomUserDetailsService userDetailsService;
+//     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//     private final OAuth2AuthenticationSuccessHandler successHandler;
+//     private final PasswordEncoder passwordEncoder;
+
+// //     @Bean
+// //     public PasswordEncoder passwordEncoder() {
+// //         return new BCryptPasswordEncoder();
+// //     }
+
+//     @Bean
+//     public AuthenticationManager authenticationManager(
+//             AuthenticationConfiguration configuration) throws Exception {
+//         return configuration.getAuthenticationManager();
+//     }
+
+//     @Bean
+//     public DaoAuthenticationProvider authenticationProvider() {
+
+//         DaoAuthenticationProvider provider =
+//                 new DaoAuthenticationProvider(userDetailsService);
+
+//         provider.setPasswordEncoder(passwordEncoder);
+
+//         return provider;
+//     }
+
+//     @Bean
+//     public SecurityFilterChain securityFilterChain(HttpSecurity http)
+//             throws Exception {
+
+// http
+//     .csrf(csrf -> csrf.disable())
+
+//     .sessionManagement(session ->
+//             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+//     .authenticationProvider(authenticationProvider())
+
+//     .addFilterBefore(
+//             jwtAuthenticationFilter,
+//             UsernamePasswordAuthenticationFilter.class)
+
+//                 .authorizeHttpRequests(auth -> auth
+//                         .requestMatchers(
+//                                 "/api/auth/**",
+//                                 "/api/leaderboard/**",
+//                                 "/swagger-ui/**",
+//                                 "/swagger-ui.html",
+//                                 "/v3/api-docs/**"
+//                         ).permitAll()
+
+//             .anyRequest().authenticated())
+
+//     .oauth2Login(oauth -> oauth
+//         .successHandler(successHandler)
+// );
+
+// return http.build();
+//     }
+// }
 package com.codearena.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +109,7 @@ import com.codearena.oauth.OAuth2AuthenticationSuccessHandler;
 import com.codearena.security.CustomUserDetailsService;
 import com.codearena.security.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -30,11 +123,6 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler successHandler;
     private final PasswordEncoder passwordEncoder;
 
-//     @Bean
-//     public PasswordEncoder passwordEncoder() {
-//         return new BCryptPasswordEncoder();
-//     }
-
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
@@ -43,46 +131,75 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(userDetailsService);
-
         provider.setPasswordEncoder(passwordEncoder);
-
         return provider;
     }
 
+    /**
+     * REST API Security
+     */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
 
-http
-    .csrf(csrf -> csrf.disable())
+        http
+                .securityMatcher("/api/**")
 
-    .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf.disable())
 
-    .authenticationProvider(authenticationProvider())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-    .addFilterBefore(
-            jwtAuthenticationFilter,
-            UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider())
+
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/leaderboard/**",
+                                "/api/leaderboard/**"
+                        ).permitAll()
+
+                        .anyRequest().authenticated())
+
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                ))
+
+                .oauth2Login(oauth -> oauth.disable())
+
+                .formLogin(form -> form.disable());
+
+        return http.build();
+    }
+
+    /**
+     * Browser Security (Swagger + OAuth2 Login)
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+
+                .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-            .anyRequest().authenticated())
+                        .anyRequest().permitAll())
 
-    .oauth2Login(oauth -> oauth
-        .successHandler(successHandler)
-);
+                .oauth2Login(oauth ->
+                        oauth.successHandler(successHandler));
 
-return http.build();
+        return http.build();
     }
 }

@@ -1,13 +1,7 @@
 package com.codearena.controller;
 
-import com.codearena.dto.problem.ProblemRequest;
-import com.codearena.entity.User;
-import com.codearena.enums.Difficulty;
-import com.codearena.enums.Role;
-import com.codearena.repository.ProblemRepository;
-import com.codearena.repository.UserRepository;
-import com.codearena.security.CustomUserDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,15 +11,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.codearena.dto.problem.ProblemRequest;
+import com.codearena.entity.User;
+import com.codearena.enums.Difficulty;
+import com.codearena.enums.Role;
+import com.codearena.repository.ProblemRepository;
+import com.codearena.repository.UserRepository;
+import com.codearena.security.CustomUserDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Integration tests for ProblemController RBAC and validation.
@@ -110,12 +114,12 @@ class ProblemControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/problems — unauthenticated → 403 Forbidden")
-    @WithAnonymousUser
-    void getAll_unauthenticated_returns403() throws Exception {
-        mockMvc.perform(get("/api/problems"))
-                .andExpect(status().isForbidden());
-    }
+@DisplayName("GET /api/problems — unauthenticated → 401 Unauthorized")
+@WithAnonymousUser
+void getAll_unauthenticated_returns401() throws Exception {
+    mockMvc.perform(get("/api/problems"))
+            .andExpect(status().isUnauthorized());
+}
 
     // ─────────────────────────── ADMIN CREATE ─────────────────────────────────
 
@@ -142,15 +146,16 @@ class ProblemControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    @DisplayName("POST /api/problems — unauthenticated → 403 Forbidden")
-    @WithAnonymousUser
-    void create_unauthenticated_returns403() throws Exception {
-        mockMvc.perform(post("/api/problems")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validRequest)))
-                .andExpect(status().isForbidden());
-    }
+@Test
+@DisplayName("POST /api/problems — unauthenticated → 401 Unauthorized")
+@WithAnonymousUser
+void create_unauthenticated_returns401() throws Exception {
+
+    mockMvc.perform(post("/api/problems")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(validRequest)))
+            .andExpect(status().isUnauthorized());
+}
 
     @Test
     @DisplayName("POST /api/problems — admin with missing title → 400 Bad Request")

@@ -26,7 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import main.java.com.codearena.entity.ProblemHint;
+// import main.java.com.codearena.entity.ProblemHint;
 
 @Entity
 @Table(name = "problems")
