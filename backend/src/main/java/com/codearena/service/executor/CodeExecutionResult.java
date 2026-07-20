@@ -1,11 +1,22 @@
 package com.codearena.service.executor;
 
 public record CodeExecutionResult(
+
         String status,
-        String stdout,
-        String stderr,
+
+        String actualOutput,
+
+        String expectedOutput,
+
+        String errorMessage,
+
         int exitCode,
-        long execTimeMs,
+
+        long executionTimeMs,
+
+        long memoryUsedKb,
+
         String containerId
+
 ) {
 }

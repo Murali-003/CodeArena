@@ -13,7 +13,30 @@ CREATE TABLE problems (
     description_md TEXT NOT NULL,
     difficulty ENUM('EASY', 'MEDIUM', 'HARD') NOT NULL,
     tags JSON NULL,
+
+    memory_limit_mb INT NOT NULL DEFAULT 256,
+    time_limit_ms INT NOT NULL DEFAULT 1000,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE problem_hints (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    problem_id BIGINT NOT NULL,
+
+    hint_order INT NOT NULL,
+
+    hint_text TEXT NOT NULL,
+
+    unlock_after_attempts INT NOT NULL DEFAULT 3,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_problem_hints_problem
+        FOREIGN KEY (problem_id)
+        REFERENCES problems(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE test_cases (

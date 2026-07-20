@@ -1,18 +1,21 @@
 package com.codearena.service;
 
-import com.codearena.dto.problem.ProblemRequest;
-import com.codearena.dto.problem.ProblemResponse;
-import com.codearena.entity.Problem;
-import com.codearena.enums.Difficulty;
-import com.codearena.exception.DuplicateResourceException;
-import com.codearena.exception.ResourceNotFoundException;
-import com.codearena.repository.ProblemRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.codearena.dto.problem.HintRequest;
+import com.codearena.dto.problem.ProblemRequest;
+import com.codearena.dto.problem.ProblemResponse;
+import com.codearena.entity.Problem;
+import com.codearena.entity.ProblemHint;
+import com.codearena.enums.Difficulty;
+import com.codearena.exception.DuplicateResourceException;
+import com.codearena.exception.ResourceNotFoundException;
+import com.codearena.repository.ProblemRepository;
+
+import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -20,19 +23,39 @@ public class ProblemService {
 
     private final ProblemRepository problemRepository;
 
-    public ProblemResponse create(ProblemRequest request) {
-        if (problemRepository.existsByTitleIgnoreCase(request.getTitle())) {
-            throw new DuplicateResourceException(
-                    "A problem titled '" + request.getTitle() + "' already exists");
-        }
-        Problem problem = Problem.builder()
-                .title(request.getTitle())
-                .descriptionMd(request.getDescriptionMd())
-                .difficulty(request.getDifficulty())
-                .tags(request.getTags())
-                .build();
-        return ProblemResponse.fromEntity(problemRepository.save(problem), true);
+public ProblemResponse create(ProblemRequest request) {
+    if (problemRepository.existsByTitleIgnoreCase(request.getTitle())) {
+        throw new DuplicateResourceException(
+                "A problem titled '" + request.getTitle() + "' already exists");
     }
+
+    Problem problem = Problem.builder()
+            .title(request.getTitle())
+            .descriptionMd(request.getDescriptionMd())
+            .difficulty(request.getDifficulty())
+            .tags(request.getTags())
+            .memoryLimitMb(request.getMemoryLimitMb())
+            .timeLimitMs(request.getTimeLimitMs())
+            .build();
+
+    if (request.getHints() != null) {
+        for (HintRequest hintRequest : request.getHints()) {
+
+            ProblemHint hint = ProblemHint.builder()
+                    .displayOrder(hintRequest.getDisplayOrder())
+                    .hintText(hintRequest.getHintText())
+                    .unlockAfterAttempts(hintRequest.getUnlockAfterAttempts())
+                    .build();
+
+            hint.setProblem(problem);
+            problem.getHints().add(hint);
+        }
+    }
+
+    Problem savedProblem = problemRepository.save(problem);
+
+    return ProblemResponse.fromEntity(savedProblem, true);
+}
 
     @Transactional(readOnly = true)
     public ProblemResponse getById(Long id) {
@@ -71,10 +94,30 @@ public class ProblemService {
         }
 
         problem.setTitle(request.getTitle());
-        problem.setDescriptionMd(request.getDescriptionMd());
-        problem.setDifficulty(request.getDifficulty());
-        problem.setTags(request.getTags());
-        return ProblemResponse.fromEntity(problem, true);
+problem.setDescriptionMd(request.getDescriptionMd());
+problem.setDifficulty(request.getDifficulty());
+problem.setTags(request.getTags());
+problem.setMemoryLimitMb(request.getMemoryLimitMb());
+problem.setTimeLimitMs(request.getTimeLimitMs());
+
+// Replace existing hints
+problem.getHints().clear();
+
+if (request.getHints() != null) {
+    for (HintRequest hintRequest : request.getHints()) {
+
+        ProblemHint hint = ProblemHint.builder()
+                .displayOrder(hintRequest.getDisplayOrder())
+                .hintText(hintRequest.getHintText())
+                .unlockAfterAttempts(hintRequest.getUnlockAfterAttempts())
+                .build();
+
+        hint.setProblem(problem);
+        problem.getHints().add(hint);
+    }
+}
+
+return ProblemResponse.fromEntity(problem, true);
     }
 
     public void delete(Long id) {

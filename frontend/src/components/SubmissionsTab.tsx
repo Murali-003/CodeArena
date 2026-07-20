@@ -1,10 +1,23 @@
 import { useState, useEffect } from "react";
-import { Submission } from "../types";
+import { Submission, SubmissionResult } from "../types";
 import { api } from "../api";
 import { History, ShieldAlert, FileCode, CheckCircle, AlertTriangle, Eye, ArrowLeft, RefreshCw, Layers } from "lucide-react";
 
-interface SubmissionsTabProps {
-  userId: number;
+// interface SubmissionsTabProps {
+//   userId: number;
+// }
+export interface Submission {
+    id: number;
+    problemId: number;
+    problemTitle?: string;
+    language: string;
+    status: string;
+    submittedAt: string;
+    sourceCode?: string;
+    results?: SubmissionResult[];
+
+    passedTestCases?: number;
+    totalTestCases?: number;
 }
 
 export default function SubmissionsTab({ userId }: SubmissionsTabProps) {
@@ -113,10 +126,32 @@ export default function SubmissionsTab({ userId }: SubmissionsTabProps) {
                   {selectedSub.status}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-500">Submitted:</span>
-                <span className="text-zinc-650 dark:text-zinc-400">{new Date(selectedSub.submittedAt).toLocaleString()}</span>
-              </div>
+             
+              <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 rounded-xl p-5 shadow-sm">
+    <div className="flex items-center justify-between">
+
+        <div>
+            <p className="text-xs font-mono uppercase text-zinc-500">
+                Test Case Summary
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold">
+                {selectedSub.passedTestCases} / {selectedSub.totalTestCases}
+            </h2>
+
+            <p className="text-sm text-zinc-500">
+                Test Cases Passed
+            </p>
+        </div>
+
+        {selectedSub.passedTestCases === selectedSub.totalTestCases ? (
+            <CheckCircle className="w-10 h-10 text-emerald-500" />
+        ) : (
+            <AlertTriangle className="w-10 h-10 text-amber-500" />
+        )}
+
+    </div>
+</div>
             </div>
           </div>
 

@@ -1,5 +1,13 @@
 package com.codearena.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.codearena.dto.submission.SubmissionRequest;
 import com.codearena.dto.submission.SubmissionResponse;
 import com.codearena.dto.submission.SubmissionResultResponse;
@@ -14,14 +22,8 @@ import com.codearena.repository.UserRepository;
 import com.codearena.service.executor.CodeExecutionRequest;
 import com.codearena.service.executor.CodeExecutionResult;
 import com.codearena.service.executor.CodeExecutor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 // NOTE: assumes a UserRepository already exists in com.codearena.repository
 // (JpaRepository<User, Long>). Swap the import/package if yours differs.
@@ -77,6 +79,23 @@ public class SubmissionService {
                         testCase.getInputData()
                 );
                 CodeExecutionResult result = codeExecutor.execute(execRequest);
+                System.out.println("========== TEST CASE ==========");
+System.out.println("Input:");
+System.out.println(testCase.getInputData());
+
+System.out.println("Expected:");
+System.out.println("[" + testCase.getExpectedOutput() + "]");
+
+System.out.println("Actual:");
+System.out.println("[" + result.actualOutput() + "]");
+
+System.out.println("Status:");
+System.out.println(result.status());
+
+System.out.println("Error:");
+System.out.println(result.errorMessage());
+
+System.out.println("===============================");
 
                 if (!"SUCCESS".equals(result.status())) {
                     finalStatus = switch (result.status()) {
@@ -88,16 +107,20 @@ public class SubmissionService {
                     break;
                 }
 
-                boolean passed = compareOutput(result.stdout(), testCase.getExpectedOutput());
-                if (!passed) {
+boolean passed = compareOutput(  result.actualOutput(),    testCase.getExpectedOutput());                if (!passed) {
                     allPassed = false;
                 }
 
-                submissionResultService.recordResult(
-                        submission, testCase, passed,
-                        (int) result.execTimeMs(), 0,
-                        result.stdout(), result.stderr()
-                );
+               submissionResultService.recordResult(
+        submission,
+        testCase,
+        passed,
+        (int) result.executionTimeMs(),
+        (int) result.memoryUsedKb(),
+        result.actualOutput(),
+        testCase.getExpectedOutput(),
+        result.errorMessage()
+);
             }
 
             if (finalStatus == SubmissionStatus.ACCEPTED && !allPassed) {

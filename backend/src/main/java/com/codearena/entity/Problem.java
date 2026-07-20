@@ -1,5 +1,6 @@
 package com.codearena.entity;
 
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import main.java.com.codearena.entity.ProblemHint;
 
 @Entity
 @Table(name = "problems")
@@ -53,18 +55,56 @@ public class Problem {
     @Column(columnDefinition = "JSON")
     private String tags;
 
+    @Column(name = "memory_limit_mb", nullable = false)
+    @Builder.Default
+    private Integer memoryLimitMb = 256;
+
+    @Column(name = "time_limit_ms", nullable = false)
+    @Builder.Default
+    private Integer timeLimitMs = 1000;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @ToString.Exclude
     @Builder.Default
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "problem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private List<TestCase> testCases = new ArrayList<>();
 
     @ToString.Exclude
     @Builder.Default
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "problem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<ProblemHint> hints = new ArrayList<>();
+
+    @ToString.Exclude
+    @Builder.Default
+    @OneToMany(
+            mappedBy = "problem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     private List<Submission> submissions = new ArrayList<>();
+
+    public void addHint(ProblemHint hint) {
+        hints.add(hint);
+        hint.setProblem(this);
+    }
+
+    public void removeHint(ProblemHint hint) {
+        hints.remove(hint);
+        hint.setProblem(null);
+    }
 
     @PrePersist
     protected void onCreate() {

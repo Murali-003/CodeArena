@@ -84,8 +84,16 @@ public class DockerCodeExecutor implements CodeExecutor {
                 createCompile.destroyForcibly();
                 String err = readStream(createCompile.getErrorStream());
                 log.warn("Failed to create compile container {}: {}", compileContainerName, err);
-                return new CodeExecutionResult("COMPILATION_ERROR", "", "Failed to create container: " + err,
-                        createCompileFinished ? createCompile.exitValue() : -1, 0, compileContainerName);
+               return new CodeExecutionResult(
+    "COMPILATION_ERROR",
+    "",
+    "",
+    "Failed to create container: " + err,
+    createCompileFinished ? createCompile.exitValue() : -1,
+    0,
+    0,
+    compileContainerName
+);
             }
 
             // docker start -a  (files are decoded from env vars by the entrypoint sh script)
@@ -103,16 +111,30 @@ public class DockerCodeExecutor implements CodeExecutor {
             if (!compileFinished) {
                 compileProcess.destroyForcibly();
                 log.warn("Compilation timed out for container {}. Exit code: 124", compileContainerName);
-                return new CodeExecutionResult("TIME_LIMIT_EXCEEDED", "", "Compilation timed out", 124, 5000, compileContainerName);
-            }
+return new CodeExecutionResult(
+        "TIME_LIMIT_EXCEEDED",
+        "",
+        "",
+        "Compilation timed out",
+        124,
+        5000,
+        0,
+        compileContainerName
+);            }
             if (compileProcess.exitValue() != 0) {
                 log.warn("Compilation failed for container {}. Exit code: {}, stderr: {}, stdout: {}",
                         compileContainerName, compileProcess.exitValue(), compileStderr, compileStdout);
-                return new CodeExecutionResult("COMPILATION_ERROR", "",
-                        compileStderr.isBlank() ? compileStdout : compileStderr,
-                        compileProcess.exitValue(), 0, compileContainerName);
+return new CodeExecutionResult(
+        "COMPILATION_ERROR",
+        "",
+        "",
+        compileStderr.isBlank() ? compileStdout : compileStderr,
+        compileProcess.exitValue(),
+        0,
+        0,
+        compileContainerName
+);
             }
-
             // ── RUN step ──────────────────────────────────────────────────────────────
             String runContainerName = containerName + "-run";
 
@@ -125,8 +147,16 @@ public class DockerCodeExecutor implements CodeExecutor {
                 createRun.destroyForcibly();
                 String err = readStream(createRun.getErrorStream());
                 log.warn("Failed to create run container {}: {}", runContainerName, err);
-                return new CodeExecutionResult("RUNTIME_ERROR", "", "Failed to create container: " + err,
-                        createRunFinished ? createRun.exitValue() : -1, 0, runContainerName);
+                return new CodeExecutionResult(
+        "RUNTIME_ERROR",
+        "",
+        "",
+        "Failed to create container: " + err,
+        createRunFinished ? createRun.exitValue() : -1,
+        0,
+        0,
+        runContainerName
+);
             }
 
             // docker start -a  (env vars decoded inside container)
@@ -150,16 +180,47 @@ public class DockerCodeExecutor implements CodeExecutor {
 
             if (!runFinished) {
                 runProcess.destroyForcibly();
-                return new CodeExecutionResult("TIME_LIMIT_EXCEEDED", "", "Execution timed out", 124, elapsedMs, runContainerName);
-            }
-            int exitCode = runProcess.exitValue();
-            if (exitCode == 137 || oomKilled) {
-                log.warn("Memory limit exceeded for container {}. Exit code: {}, stdout: {}, stderr: {}",
-                        runContainerName, exitCode, stdout, stderr);
-                return new CodeExecutionResult("MEMORY_LIMIT_EXCEEDED", stdout, stderr, exitCode, elapsedMs, runContainerName);
-            }
-            return new CodeExecutionResult("SUCCESS", stdout, stderr, exitCode, elapsedMs, runContainerName);
-        } finally {
+return new CodeExecutionResult(
+        "TIME_LIMIT_EXCEEDED",
+        "",
+        "",
+        "Execution timed out",
+        124,
+        elapsedMs,
+        0,
+        runContainerName
+);
+}
+
+int exitCode = runProcess.exitValue();
+
+if (exitCode == 137 || oomKilled) {
+    log.warn("Memory limit exceeded for container {}. Exit code: {}, stdout: {}, stderr: {}",
+            runContainerName, exitCode, stdout, stderr);
+
+    return new CodeExecutionResult(
+            "MEMORY_LIMIT_EXCEEDED",
+            stdout,          // actualOutput
+            "",              // expectedOutput (executor doesn't know it)
+            stderr,          // errorMessage
+            exitCode,
+            elapsedMs,
+            512000,
+            runContainerName
+    );
+}
+
+return new CodeExecutionResult(
+        "SUCCESS",
+        stdout,          // actualOutput
+        "",              // expectedOutput (executor doesn't know it)
+        stderr,          // errorMessage
+        exitCode,
+        elapsedMs,
+        0,
+        runContainerName
+);}
+finally {
             deleteRecursively(tempDir);
         }
     }

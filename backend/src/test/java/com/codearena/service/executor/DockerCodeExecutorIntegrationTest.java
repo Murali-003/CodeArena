@@ -1,18 +1,16 @@
 package com.codearena.service.executor;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @Tag("integration")
 @EnabledIfSystemProperty(named = "docker.tests.enabled", matches = "true")
@@ -41,10 +39,10 @@ class DockerCodeExecutorIntegrationTest {
 
         System.out.printf("VALID_CODE status=%s execTimeMs=%d pass=%s%n",
                 result.status(), execTimeMs,
-                result.status().equals("SUCCESS") && result.stdout().trim().equals("hello"));
+                result.status().equals("SUCCESS") && result.actualOutput().trim().equals("hello"));
 
         assertEquals("SUCCESS", result.status());
-        assertEquals("hello", result.stdout().trim());
+        assertEquals("hello", result.actualOutput().trim());
     }
 
     @Test
@@ -90,10 +88,10 @@ class DockerCodeExecutorIntegrationTest {
 
         System.out.printf("MALICIOUS status=%s execTimeMs=%d pass=%s%n",
                 result.status(), execTimeMs,
-                result.stdout().contains("WRITE_BLOCKED"));
+                result.actualOutput().contains("WRITE_BLOCKED"));
 
         assertEquals("SUCCESS", result.status());
-        assertTrue(result.stdout().contains("WRITE_BLOCKED"), "the sandbox should block the write to the read-only filesystem");
+        assertTrue(result.actualOutput().contains("WRITE_BLOCKED"), "the sandbox should block the write to the read-only filesystem");
     }
 
     private static void assumeDockerAvailable() {

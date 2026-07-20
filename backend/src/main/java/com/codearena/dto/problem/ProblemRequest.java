@@ -1,6 +1,10 @@
 package com.codearena.dto.problem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.codearena.enums.Difficulty;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -26,5 +30,14 @@ public class ProblemRequest {
     @NotNull(message = "Difficulty is required")
     private Difficulty difficulty;
 
-    private String tags;
+private String tags;
+
+@Builder.Default
+private Integer memoryLimitMb = 256;
+
+@Builder.Default
+private Integer timeLimitMs = 1000;
+
+@Builder.Default
+private List<HintRequest> hints = new ArrayList<>();
 }

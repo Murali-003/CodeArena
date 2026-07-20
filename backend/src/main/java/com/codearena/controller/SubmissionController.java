@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.codearena.dto.submission.SubmissionRequest;
@@ -36,10 +37,20 @@ public class SubmissionController {
         );
     }
 
+    // @GetMapping("/{id}")
+    // public ResponseEntity<SubmissionResponse> getById(@PathVariable Long id) {
+    //     return ResponseEntity.ok(submissionService.getById(id, true));
+    // }
+
     @GetMapping("/{id}")
-    public ResponseEntity<SubmissionResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(submissionService.getById(id, true));
-    }
+public ResponseEntity<SubmissionResponse> getById(
+        @PathVariable Long id,
+        @RequestParam(defaultValue = "true") boolean includeOutput) {
+
+    return ResponseEntity.ok(
+            submissionService.getById(id, includeOutput)
+    );
+}
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<SubmissionResponse>> getUserSubmissions(
