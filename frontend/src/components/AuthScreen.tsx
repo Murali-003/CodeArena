@@ -71,7 +71,7 @@ export default function AuthScreen({ onLoginSuccess }: AuthScreenProps) {
             <Terminal className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight text-white flex items-center gap-1.5">
+            <h1 className="text-2xl font-semibold tracking-tight text-white flex items-center gap-1.5">
               Code<span className="text-blue-500">Arena</span>
             </h1>
             <p className="text-xs text-zinc-500 font-mono tracking-wider">FRONTEND COMPANION</p>
