@@ -2,27 +2,25 @@ package com.codearena.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 import com.codearena.dto.auth.LoginRequest;
 import com.codearena.dto.auth.LoginResponse;
 import com.codearena.dto.auth.RegisterRequest;
-import com.codearena.service.AuthService;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
 import com.codearena.entity.User;
 import com.codearena.security.CustomUserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.codearena.service.AuthService;
+import com.codearena.service.EmailService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailService emailService;
     
     @GetMapping("/me")
     public ResponseEntity<User> currentUser(
@@ -71,6 +70,16 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/test-email")
+public ResponseEntity<String> testEmail() {
+
+    emailService.sendWelcomeEmail(
+            "likhithadharavath2004@gmail.com",
+            "Likhitha"
+    );
+
+    return ResponseEntity.ok("Test email sent successfully.");
+}
     private void setCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("jwt_token", token);
         cookie.setHttpOnly(true);

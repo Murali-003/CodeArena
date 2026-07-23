@@ -14,6 +14,8 @@ import com.codearena.enums.Difficulty;
 import com.codearena.exception.DuplicateResourceException;
 import com.codearena.exception.ResourceNotFoundException;
 import com.codearena.repository.ProblemRepository;
+import com.codearena.repository.SubmissionRepository;
+import com.codearena.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 @Service
@@ -22,7 +24,30 @@ import lombok.RequiredArgsConstructor;
 public class ProblemService {
 
     private final ProblemRepository problemRepository;
+    private final SubmissionRepository submissionRepository;
+    private final UserRepository userRepository;
+@Transactional(readOnly = true)
+public ProblemResponse getByIdForUser(Long problemId, Long userId) {
 
+    Problem problem = findEntityOrThrow(problemId);
+
+    long failedAttempts =
+            submissionRepository.countFailedAttempts(userId, problemId);
+
+    System.out.println("========== HINT DEBUG ==========");
+    System.out.println("Failed Attempts = " + failedAttempts);
+    problem.getHints().forEach(h ->
+        System.out.println(
+            h.getHintText() + " -> unlockAfter=" + h.getUnlockAfterAttempts()
+        )
+    );
+
+    return ProblemResponse.fromEntity(
+            problem,
+            false,
+            (int) failedAttempts
+    );
+}
 public ProblemResponse create(ProblemRequest request) {
     if (problemRepository.existsByTitleIgnoreCase(request.getTitle())) {
         throw new DuplicateResourceException(
@@ -116,6 +141,8 @@ if (request.getHints() != null) {
         problem.getHints().add(hint);
     }
 }
+
+
 
 return ProblemResponse.fromEntity(problem, true);
     }

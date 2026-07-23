@@ -12,7 +12,12 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
   const [streakData, setStreakData] = useState<StreakData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hoveredCell, setHoveredCell] = useState<{ date: string; count: number; x: number; y: number } | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<{
+    date: string;
+    count: number;
+    x: number;
+    y: number;
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,7 +45,10 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 bg-zinc-200 dark:bg-slate-800 rounded-lg" />
+            <div
+              key={i}
+              className="h-24 bg-zinc-200 dark:bg-slate-800 rounded-lg"
+            />
           ))}
         </div>
         <div className="h-32 bg-zinc-200 dark:bg-slate-800 rounded-lg w-full" />
@@ -54,15 +62,23 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
         <div className="w-10 h-10 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
           <Calendar className="w-5 h-5" />
         </div>
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Unable to load contribution activity</h3>
-        <p className="text-xs text-zinc-500 dark:text-slate-400 max-w-sm mx-auto">{error || "Data is missing."}</p>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+          Unable to load contribution activity
+        </h3>
+        <p className="text-xs text-zinc-500 dark:text-slate-400 max-w-sm mx-auto">
+          {error || "Data is missing."}
+        </p>
       </div>
     );
   }
 
   // BUG FIX: End date is actual current date, normalized to local midnight
   const today = new Date();
-  const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayNormalized = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
 
   // Day of week: Mon=0, Tue=1, ..., Sun=6
   const currentWeekday = (todayNormalized.getDay() + 6) % 7;
@@ -125,7 +141,20 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
   };
 
   // Month labels positioning
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const monthLabels: { label: string; colIndex: number }[] = [];
   let prevMonth = -1;
 
@@ -139,7 +168,11 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
     }
   });
 
-  const handleCellMouseEnter = (e: React.MouseEvent<HTMLDivElement>, dateStr: string, count: number) => {
+  const handleCellMouseEnter = (
+    e: React.MouseEvent<HTMLDivElement>,
+    dateStr: string,
+    count: number,
+  ) => {
     if (!containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
     const cellRect = e.currentTarget.getBoundingClientRect();
@@ -148,7 +181,9 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
     setHoveredCell({ date: dateStr, count, x, y });
   };
 
-  const isNewBest = streakData.longestStreak === streakData.currentStreak && streakData.currentStreak > 0;
+  const isNewBest =
+    streakData.longestStreak === streakData.currentStreak &&
+    streakData.currentStreak > 0;
 
   const statCards = [
     {
@@ -199,7 +234,9 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
         </div>
         <div className="text-xs font-mono text-zinc-600 dark:text-slate-400 bg-zinc-50 dark:bg-slate-900/60 border border-zinc-200 dark:border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
           <span>Period:</span>
-          <span className="text-indigo-600 dark:text-indigo-400 font-semibold uppercase">Current Period</span>
+          <span className="text-indigo-600 dark:text-indigo-400 font-semibold uppercase">
+            Current Period
+          </span>
         </div>
       </div>
 
@@ -223,12 +260,13 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
                 <span className="flex items-center gap-1">
                   {Icon && (
                     <Icon
-                      className={`w-3 h-3 ${card.color === "orange"
+                      className={`w-3 h-3 ${
+                        card.color === "orange"
                           ? "text-orange-500"
                           : card.color === "yellow"
                             ? "text-yellow-500"
                             : ""
-                        } ${card.hasFlameGlow ? "animate-pulse" : ""}`}
+                      } ${card.hasFlameGlow ? "animate-pulse" : ""}`}
                     />
                   )}
                   {card.title}
@@ -242,12 +280,13 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
               </div>
 
               <div
-                className={`text-2xl font-bold tracking-tight tabular-nums ${card.color === "orange"
+                className={`text-2xl font-bold tracking-tight tabular-nums ${
+                  card.color === "orange"
                     ? "text-orange-600 dark:text-orange-400"
                     : card.color === "yellow"
                       ? "text-yellow-600 dark:text-yellow-400"
                       : "text-zinc-900 dark:text-white"
-                  }`}
+                }`}
               >
                 {card.value}{" "}
                 {card.unit && (
@@ -295,10 +334,12 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
                   return (
                     <div
                       key={rowIdx}
-                      onMouseEnter={(e) => handleCellMouseEnter(e, dateStr, count)}
+                      onMouseEnter={(e) =>
+                        handleCellMouseEnter(e, dateStr, count)
+                      }
                       onMouseLeave={() => setHoveredCell(null)}
                       className={`w-[10.5px] h-[10.5px] rounded-[2px] border-[0.5px] cursor-pointer transition-all duration-150 ${getIntensityClass(
-                        count
+                        count,
                       )} hover:scale-125 hover:z-10`}
                     />
                   );
@@ -332,7 +373,10 @@ export default function StreakHeatmap({ userId }: StreakHeatmapProps) {
           className="absolute pointer-events-none z-30 -translate-x-1/2 bg-zinc-900/90 dark:bg-slate-900/95 text-white border border-zinc-700 dark:border-slate-700 px-3 py-1.5 rounded-lg shadow-xl text-[11px] font-mono whitespace-nowrap backdrop-blur-xs transition-all duration-75"
           style={{ left: `${hoveredCell.x}px`, top: `${hoveredCell.y}px` }}
         >
-          <span className="text-blue-400 font-bold">{hoveredCell.count} submissions</span> on {hoveredCell.date}
+          <span className="text-blue-400 font-bold">
+            {hoveredCell.count} submissions
+          </span>{" "}
+          on {hoveredCell.date}
         </div>
       )}
     </div>

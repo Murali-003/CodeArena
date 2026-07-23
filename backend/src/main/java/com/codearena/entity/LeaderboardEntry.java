@@ -1,9 +1,22 @@
 package com.codearena.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "leaderboard_entries")
@@ -26,6 +39,10 @@ public class LeaderboardEntry {
     @Column(name = "problems_solved", nullable = false)
     @Builder.Default
     private Integer problemsSolved = 0;
+
+    @Column(name = "weighted_score", nullable = false)
+    @Builder.Default
+    private Integer weightedScore = 0;
 
     @Column(nullable = false, precision = 5, scale = 2)
     @Builder.Default

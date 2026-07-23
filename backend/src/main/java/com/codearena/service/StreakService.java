@@ -1,16 +1,23 @@
 package com.codearena.service;
 
-import com.codearena.dto.user.StreakResponse;
-import com.codearena.entity.Submission;
-import com.codearena.repository.SubmissionRepository;
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.codearena.dto.user.StreakResponse;
+import com.codearena.entity.Submission;
+import com.codearena.repository.SubmissionRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

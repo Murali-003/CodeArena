@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import com.codearena.dto.auth.LoginRequest;
 import com.codearena.dto.auth.LoginResponse;
 import com.codearena.dto.auth.RegisterRequest;
+import com.codearena.entity.LeaderboardEntry;
 import com.codearena.entity.User;
 import com.codearena.enums.Role;
+import com.codearena.repository.LeaderboardEntryRepository;
 import com.codearena.repository.UserRepository;
 import com.codearena.security.CustomUserDetails;
 import com.codearena.security.JwtService;
@@ -24,6 +26,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;   
+    private final LeaderboardEntryRepository leaderboardEntryRepository; 
 
     public LoginResponse login(LoginRequest request) {
 
@@ -65,6 +69,22 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
+
+LeaderboardEntry leaderboardEntry = LeaderboardEntry.builder()
+        .user(user)
+        .build();
+
+leaderboardEntryRepository.save(leaderboardEntry);
+
+try {
+    emailService.sendWelcomeEmail(
+            user.getEmail(),
+            user.getUsername()
+    );
+} catch (Exception e) {
+    // Log the exception
+    System.err.println("Failed to send welcome email: " + e.getMessage());
+}
 
         String token = jwtService.generateToken(new CustomUserDetails(user));
 

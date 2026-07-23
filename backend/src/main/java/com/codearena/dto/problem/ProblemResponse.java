@@ -37,7 +37,7 @@ public class ProblemResponse {
     private Integer timeLimitMs;
 
     private List<HintResponse> hints;
-
+    //for admin
     public static ProblemResponse fromEntity(Problem problem, boolean includeHidden) {
         return ProblemResponse.builder()
         .id(problem.getId())
@@ -62,4 +62,35 @@ public class ProblemResponse {
                         .collect(Collectors.toList()))
         .build();
     }
+//for user
+
+    public static ProblemResponse fromEntity(
+        Problem problem,
+        boolean includeHidden,
+        int failedAttempts) {
+
+    return ProblemResponse.builder()
+            .id(problem.getId())
+            .title(problem.getTitle())
+            .description(problem.getDescriptionMd())
+            .difficulty(problem.getDifficulty())
+            .category(problem.getTags())
+            .memoryLimitMb(problem.getMemoryLimitMb())
+            .timeLimitMs(problem.getTimeLimitMs())
+            .createdAt(problem.getCreatedAt())
+            .testCaseCount(problem.getTestCases() == null ? 0 : problem.getTestCases().size())
+            .testCases(problem.getTestCases() == null ? null :
+                    problem.getTestCases().stream()
+                            .filter(tc -> includeHidden || !Boolean.TRUE.equals(tc.getIsHidden()))
+                            .map(tc -> TestCaseResponse.fromEntity(tc, includeHidden))
+                            .collect(Collectors.toList()))
+            .hints(problem.getHints() == null
+                    ? List.of()
+                    : problem.getHints().stream()
+                            .filter(h -> failedAttempts >= h.getUnlockAfterAttempts())
+                            .sorted(Comparator.comparing(ProblemHint::getDisplayOrder))
+                            .map(HintResponse::fromEntity)
+                            .collect(Collectors.toList()))
+            .build();
+}
 }

@@ -1,8 +1,20 @@
 import { useState, useEffect } from "react";
 import { User, Submission, LeaderboardUser } from "../types";
-import { User2, Calendar, Award, Code, CheckCircle, ShieldAlert, BookOpen, Clock } from "lucide-react";
+import {
+  User2,
+  Calendar,
+  Award,
+  Code,
+  CheckCircle,
+  ShieldAlert,
+  BookOpen,
+  Clock,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { api } from "../api";
+import Lottie from "lottie-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import codingBoy from "../assets/lottie/Codingboy.json";
 
 interface ProfileTabProps {
   userId: number;
@@ -20,7 +32,9 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
       setError(null);
       try {
         const subsData = await api.get(`/api/submissions/user/${userId}`);
-        setSubmissions(Array.isArray(subsData) ? subsData : (subsData.content ?? []));
+        setSubmissions(
+          Array.isArray(subsData) ? subsData : (subsData.content ?? []),
+        );
 
         try {
           const userData = await api.get(`/api/leaderboard/user/${userId}`);
@@ -32,7 +46,7 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
               username: "demo_guest",
               problemsSolved: 0,
               accuracy: 0,
-              rankPosition: 0
+              rankPosition: 0,
             });
           } else {
             throw userErr;
@@ -66,15 +80,21 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
         <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Profile Loading Mismatch</h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">{error}</p>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+          Profile Loading Mismatch
+        </h3>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
+          {error}
+        </p>
       </div>
     );
   }
 
   // Calculate difficulty splits
   const solvedSubmissions = submissions.filter((s) => s.status === "ACCEPTED");
-  const uniqueSolvedProblemIds = Array.from(new Set(solvedSubmissions.map((s) => s.problemId)));
+  const uniqueSolvedProblemIds = Array.from(
+    new Set(solvedSubmissions.map((s) => s.problemId)),
+  );
 
   let easySolved = 0;
   let mediumSolved = 0;
@@ -103,7 +123,10 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
     return "text-zinc-500";
   };
 
-  const isTop3Rank = profileData?.rankPosition && profileData.rankPosition >= 1 && profileData.rankPosition <= 3;
+  const isTop3Rank =
+    profileData?.rankPosition &&
+    profileData.rankPosition >= 1 &&
+    profileData.rankPosition <= 3;
 
   return (
     <div className="space-y-6">
@@ -112,7 +135,7 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="bg-white dark:bg-[#0f172a] border border-zinc-200/90 dark:border-slate-800/80 rounded-xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center md:items-start gap-6 shadow-sm transition-all duration-200 hover:shadow-md"
+        className="bg-white dark:bg-[#0f172a] border border-zinc-200/90 dark:border-slate-800/80 rounded-xl p-6 relative overflow-hidden flex flex-col lg:flex-row justify-between items-center gap-6 shadow-sm transition-all duration-200 hover:shadow-md"
       >
         {/* Decorative Ambient Background Glow */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -133,7 +156,10 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
                 {profileData?.username || "demo_coder"}
               </h2>
               <p className="text-xs text-zinc-500 dark:text-slate-400 font-mono mt-0.5">
-                MOCK_USER_ID: <span className="text-zinc-700 dark:text-zinc-300">{userId}</span>
+                MOCK_USER_ID:{" "}
+                <span className="text-zinc-700 dark:text-zinc-300">
+                  {userId}
+                </span>
               </p>
             </div>
 
@@ -150,7 +176,12 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 pt-2 text-xs font-mono text-zinc-500 dark:text-slate-400 border-t border-zinc-150 dark:border-slate-800/60">
             <div className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-zinc-400 dark:text-slate-500" />
-              <span>Session Logged: <span className="text-zinc-800 dark:text-zinc-200">Live Today</span></span>
+              <span>
+                Session Logged:{" "}
+                <span className="text-zinc-800 dark:text-zinc-200">
+                  Live Today
+                </span>
+              </span>
             </div>
 
             {/* Prominent Global Rank Badge with Trophy Gold Glow */}
@@ -171,6 +202,19 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
             </div>
           </div>
         </div>
+        {/* Coding Boy Animation */}
+        <div className="hidden lg:flex items-end justify-end shrink-0 z-10">
+          <div className="relative">
+            {/* Glow */}
+            <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full" />
+
+            <Lottie
+              animationData={codingBoy}
+              loop
+              className="relative w-56 h-56 xl:w-64 xl:h-64"
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* Stats Breakdown Bento Grid with Staggered Entrance */}
@@ -187,11 +231,17 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
             Evaluation Accuracy
           </div>
           <div className="space-y-1.5 font-mono">
-            <div className={`text-4xl font-extrabold tracking-tight tabular-nums ${getAccuracyColor(profileData?.accuracy || 0)}`}>
+            <div
+              className={`text-4xl font-extrabold tracking-tight tabular-nums ${getAccuracyColor(profileData?.accuracy || 0)}`}
+            >
               {profileData?.accuracy || 0.0}%
             </div>
             <p className="text-xs text-zinc-500 dark:text-slate-400 font-sans leading-relaxed">
-              Calculated dynamically as <span className="text-zinc-700 dark:text-zinc-300 font-mono">accepted / total submissions</span>. Strive for high accuracy on first submissions.
+              Calculated dynamically as{" "}
+              <span className="text-zinc-700 dark:text-zinc-300 font-mono">
+                accepted / total submissions
+              </span>
+              . Strive for high accuracy on first submissions.
             </p>
           </div>
         </motion.div>
@@ -210,16 +260,24 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
           <div className="space-y-3 font-mono text-xs">
             {Object.keys(langCounts).length === 0 ? (
               <p className="text-xs text-zinc-500 dark:text-slate-400 font-sans">
-                No languages compiled yet. Code editor solves will record language distribution metrics here.
+                No languages compiled yet. Code editor solves will record
+                language distribution metrics here.
               </p>
             ) : (
               Object.entries(langCounts).map(([lang, count]) => {
-                const targetPct = Math.min(100, (count / submissions.length) * 100);
+                const targetPct = Math.min(
+                  100,
+                  (count / submissions.length) * 100,
+                );
                 return (
                   <div key={lang} className="space-y-1">
                     <div className="flex justify-between items-center text-[11px]">
-                      <span className="font-bold text-zinc-700 dark:text-zinc-200">{lang}</span>
-                      <span className="text-zinc-500 dark:text-slate-400">{count} submissions</span>
+                      <span className="font-bold text-zinc-700 dark:text-zinc-200">
+                        {lang}
+                      </span>
+                      <span className="text-zinc-500 dark:text-slate-400">
+                        {count} submissions
+                      </span>
                     </div>
                     <div className="w-full bg-zinc-100 dark:bg-slate-900 h-1.5 rounded-full overflow-hidden border border-zinc-200 dark:border-slate-800">
                       <motion.div
@@ -251,8 +309,12 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
             {/* Easy Progress */}
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">Easy</span>
-                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">{easySolved} / {totalEasyCount}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                  Easy
+                </span>
+                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">
+                  {easySolved} / {totalEasyCount}
+                </span>
               </div>
               <div className="w-full bg-zinc-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden border border-zinc-200 dark:border-slate-800">
                 <motion.div
@@ -267,14 +329,20 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
             {/* Medium Progress */}
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-amber-600 dark:text-amber-400 font-bold">Medium</span>
-                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">{mediumSolved} / {totalMediumCount}</span>
+                <span className="text-amber-600 dark:text-amber-400 font-bold">
+                  Medium
+                </span>
+                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">
+                  {mediumSolved} / {totalMediumCount}
+                </span>
               </div>
               <div className="w-full bg-zinc-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden border border-zinc-200 dark:border-slate-800">
                 <motion.div
                   className="bg-amber-500 h-full rounded-full"
                   initial={{ width: 0 }}
-                  animate={{ width: `${(mediumSolved / totalMediumCount) * 100}%` }}
+                  animate={{
+                    width: `${(mediumSolved / totalMediumCount) * 100}%`,
+                  }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
                 />
               </div>
@@ -283,8 +351,12 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
             {/* Hard Progress */}
             <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-rose-600 dark:text-rose-400 font-bold">Hard</span>
-                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">{hardSolved} / {totalHardCount}</span>
+                <span className="text-rose-600 dark:text-rose-400 font-bold">
+                  Hard
+                </span>
+                <span className="text-zinc-600 dark:text-slate-300 tabular-nums">
+                  {hardSolved} / {totalHardCount}
+                </span>
               </div>
               <div className="w-full bg-zinc-100 dark:bg-slate-900 h-2 rounded-full overflow-hidden border border-zinc-200 dark:border-slate-800">
                 <motion.div
@@ -333,7 +405,9 @@ export default function ProfileTab({ userId }: ProfileTabProps) {
                 <div className="flex items-center gap-3">
                   <span
                     className={`w-2 h-2 rounded-full ${
-                      sub.status === "ACCEPTED" ? "bg-emerald-500 animate-pulse" : "bg-zinc-400 dark:bg-slate-600"
+                      sub.status === "ACCEPTED"
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-zinc-400 dark:bg-slate-600"
                     }`}
                   />
                   <div>

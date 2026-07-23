@@ -9,12 +9,22 @@ interface LeaderboardTabProps {
   onNavigateToProblems: () => void;
 }
 
-export default function LeaderboardTab({ userId, onNavigateToProblems }: LeaderboardTabProps) {
+export default function LeaderboardTab({
+  userId,
+  onNavigateToProblems,
+}: LeaderboardTabProps) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
-  const [currentUserRank, setCurrentUserRank] = useState<LeaderboardUser | null>(null);
+  const [currentUserRank, setCurrentUserRank] =
+    useState<LeaderboardUser | null>(null);
   const [userRank404, setUserRank404] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [leaderboardType, setLeaderboardType] = useState<
+    "ALL_TIME" | "WEEKLY" | "LANGUAGE"
+  >("ALL_TIME");
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    "PYTHON" | "JAVA" | "CPP"
+  >("PYTHON");
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -22,8 +32,20 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
       setError(null);
       setUserRank404(false);
       try {
-        const globalData = await api.get("/api/leaderboard");
-        setLeaderboard(Array.isArray(globalData) ? globalData : (globalData.content ?? []));
+        let endpoint = "/api/leaderboard";
+
+        if (leaderboardType === "WEEKLY") {
+          endpoint = "/api/leaderboard/weekly";
+        }
+
+        if (leaderboardType === "LANGUAGE") {
+          endpoint = `/api/leaderboard/language/${selectedLanguage}`;
+        }
+
+        const globalData = await api.get(endpoint);
+        setLeaderboard(
+          Array.isArray(globalData) ? globalData : (globalData.content ?? []),
+        );
 
         try {
           const userData = await api.get(`/api/leaderboard/user/${userId}`);
@@ -33,7 +55,10 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
             setUserRank404(true);
             setCurrentUserRank(null);
           } else {
-            console.warn("Failed to retrieve current user ranking metrics.", userErr);
+            console.warn(
+              "Failed to retrieve current user ranking metrics.",
+              userErr,
+            );
           }
         }
       } catch (err: any) {
@@ -43,7 +68,7 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
       }
     }
     fetchLeaderboard();
-  }, [userId]);
+  }, [userId, leaderboardType, selectedLanguage]);
 
   const getMedalIcon = (rank: number) => {
     if (rank === 1) {
@@ -99,8 +124,12 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
         <div className="w-12 h-12 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
-        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Leaderboard Server Unreachable</h3>
-        <p className="text-xs text-zinc-500 dark:text-slate-400 max-w-sm mx-auto">{error}</p>
+        <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+          Leaderboard Server Unreachable
+        </h3>
+        <p className="text-xs text-zinc-500 dark:text-slate-400 max-w-sm mx-auto">
+          {error}
+        </p>
       </div>
     );
   }
@@ -121,7 +150,9 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
               Not Ranked Yet
             </h3>
             <p className="text-xs text-zinc-600 dark:text-slate-400 leading-relaxed font-sans">
-              Your handle is registered, but you do not appear on the arena ranks. Submit a challenge solution to catalog your initial leaderboard position.
+              Your handle is registered, but you do not appear on the arena
+              ranks. Submit a challenge solution to catalog your initial
+              leaderboard position.
             </p>
           </div>
           <button
@@ -151,7 +182,10 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
               </div>
               <div>
                 <h4 className="text-sm font-bold text-zinc-800 dark:text-zinc-100 font-mono flex items-center gap-1.5">
-                  {currentUserRank.username} <span className="text-xs text-indigo-500 font-normal">(You)</span>
+                  {currentUserRank.username}{" "}
+                  <span className="text-xs text-indigo-500 font-normal">
+                    (You)
+                  </span>
                 </h4>
                 <p className="text-[11px] font-mono text-zinc-500 dark:text-slate-400">
                   Arena Standing • Active Contender
@@ -162,12 +196,20 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
 
           <div className="grid grid-cols-2 gap-x-8 gap-y-2 font-mono text-xs text-zinc-500 dark:text-slate-400">
             <div className="flex items-center justify-between gap-4 py-1 border-b border-zinc-200/80 dark:border-slate-800/80">
-              <span className="text-zinc-500 dark:text-slate-400">Problems Solved:</span>
-              <span className="text-zinc-800 dark:text-zinc-200 font-bold">{currentUserRank.problemsSolved}</span>
+              <span className="text-zinc-500 dark:text-slate-400">
+                Problems Solved:
+              </span>
+              <span className="text-zinc-800 dark:text-zinc-200 font-bold">
+                {currentUserRank.problemsSolved}
+              </span>
             </div>
             <div className="flex items-center justify-between gap-4 py-1 border-b border-zinc-200/80 dark:border-slate-800/80">
-              <span className="text-zinc-500 dark:text-slate-400">Overall Accuracy:</span>
-              <span className="text-zinc-800 dark:text-zinc-200 font-bold">{currentUserRank.accuracy}%</span>
+              <span className="text-zinc-500 dark:text-slate-400">
+                Overall Accuracy:
+              </span>
+              <span className="text-zinc-800 dark:text-zinc-200 font-bold">
+                {currentUserRank.accuracy}%
+              </span>
             </div>
           </div>
         </motion.div>
@@ -184,6 +226,56 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
             <p className="text-[11px] text-zinc-500 dark:text-slate-400 mt-0.5">
               Top-performing algorithmic solvers cataloged
             </p>
+            <div className="mt-4 flex flex-wrap gap-3 items-center">
+              <button
+                onClick={() => setLeaderboardType("ALL_TIME")}
+                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                  leaderboardType === "ALL_TIME"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-zinc-200 dark:bg-slate-800"
+                }`}
+              >
+                All Time
+              </button>
+
+              <button
+                onClick={() => setLeaderboardType("WEEKLY")}
+                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                  leaderboardType === "WEEKLY"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-zinc-200 dark:bg-slate-800"
+                }`}
+              >
+                Weekly
+              </button>
+
+              <button
+                onClick={() => setLeaderboardType("LANGUAGE")}
+                className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                  leaderboardType === "LANGUAGE"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-zinc-200 dark:bg-slate-800"
+                }`}
+              >
+                Language
+              </button>
+
+              {leaderboardType === "LANGUAGE" && (
+                <select
+                  value={selectedLanguage}
+                  onChange={(e) =>
+                    setSelectedLanguage(
+                      e.target.value as "PYTHON" | "JAVA" | "CPP",
+                    )
+                  }
+                  className="rounded-lg border border-zinc-300 dark:border-slate-700 px-3 py-1 text-xs bg-white dark:bg-slate-900"
+                >
+                  <option value="PYTHON">Python</option>
+                  <option value="JAVA">Java</option>
+                  <option value="CPP">C++</option>
+                </select>
+              )}
+            </div>
           </div>
           <span className="text-[10px] font-mono text-zinc-500 dark:text-slate-400">
             Total Players: {leaderboard.length}
@@ -196,8 +288,12 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
               <tr className="border-b border-zinc-200 dark:border-slate-800/80 text-[10px] font-mono text-zinc-500 dark:text-slate-400 uppercase tracking-wider select-none bg-zinc-50/70 dark:bg-slate-900/50">
                 <th className="py-3.5 px-6 font-semibold w-24">Rank</th>
                 <th className="py-3.5 px-6 font-semibold">Coder Handle</th>
-                <th className="py-3.5 px-6 font-semibold text-center">Problems Solved</th>
-                <th className="py-3.5 px-6 font-semibold text-center">Submission Accuracy</th>
+                <th className="py-3.5 px-6 font-semibold text-center">
+                  Problems Solved
+                </th>
+                <th className="py-3.5 px-6 font-semibold text-center">
+                  Submission Accuracy
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-150 dark:divide-slate-800/50 text-sm font-mono">
@@ -208,7 +304,11 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
                     key={player.userId}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25, delay: index * 0.03, ease: "easeOut" }}
+                    transition={{
+                      duration: 0.25,
+                      delay: index * 0.03,
+                      ease: "easeOut",
+                    }}
                     className={`transition-all duration-200 hover:bg-zinc-50/80 dark:hover:bg-slate-800/40 ${
                       isSelf
                         ? "bg-indigo-500/10 dark:bg-indigo-500/15 border-l-4 border-l-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.1)]"
@@ -245,7 +345,9 @@ export default function LeaderboardTab({ userId, onNavigateToProblems }: Leaderb
                           <motion.div
                             className="bg-indigo-500 h-full rounded-full"
                             initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(100, player.accuracy)}%` }}
+                            animate={{
+                              width: `${Math.min(100, player.accuracy)}%`,
+                            }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
                           />
                         </div>

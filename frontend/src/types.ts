@@ -5,6 +5,12 @@ export interface TestCase {
   expectedOutput?: string;
 }
 
+export interface Hint {
+  id: number;
+  displayOrder: number;
+  hintText: string;
+}
+
 export interface Problem {
   id: number;
   title: string;
@@ -14,6 +20,7 @@ export interface Problem {
   acceptanceRate: string;
   testCases: TestCase[];
   tags?: string;
+  hints: Hint[];
 }
 
 export interface SubmissionResult {
@@ -31,7 +38,14 @@ export interface Submission {
   userId: number;
   problemId: number;
   language: "PYTHON" | "JAVA" | "CPP";
-  status: "RUNNING" | "ACCEPTED" | "WRONG_ANSWER" | "COMPILATION_ERROR" | "TIME_LIMIT_EXCEEDED" | "MEMORY_LIMIT_EXCEEDED" | "RUNTIME_ERROR";
+  status:
+    | "RUNNING"
+    | "ACCEPTED"
+    | "WRONG_ANSWER"
+    | "COMPILATION_ERROR"
+    | "TIME_LIMIT_EXCEEDED"
+    | "MEMORY_LIMIT_EXCEEDED"
+    | "RUNTIME_ERROR";
   submittedAt: string;
   results: SubmissionResult[];
   sourceCode: string;

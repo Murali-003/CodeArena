@@ -1,10 +1,11 @@
 package com.codearena.repository;
 
-import com.codearena.entity.LeaderboardEntry;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.codearena.entity.LeaderboardEntry;
 
 public interface LeaderboardEntryRepository extends JpaRepository<LeaderboardEntry, Long> {
 
@@ -15,4 +16,6 @@ public interface LeaderboardEntryRepository extends JpaRepository<LeaderboardEnt
     List<LeaderboardEntry> findAllByOrderByProblemsSolvedDescAccuracyDesc();
 
     List<LeaderboardEntry> findAllByOrderByRankAsc();
+
+    List<LeaderboardEntry> findAllByOrderByWeightedScoreDescAccuracyDesc();
 }
